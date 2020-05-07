@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 

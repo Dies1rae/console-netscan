@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 class logg{
@@ -22,5 +23,8 @@ public:
 	void cout_log_string();
 	//get all log(strings) in vector to somewhere 
 	vector <string> get_all_log_string();
+
+	//to file  --- NOW WORK
+	void write_logdump_to_file(string filepath);
 };
 

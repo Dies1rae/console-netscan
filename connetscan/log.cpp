@@ -15,3 +15,10 @@ void logg::cout_log_string() {
 vector <string> logg::get_all_log_string() {
 	return this->logdump;
 }
+
+void logg::write_logdump_to_file(string filepath) {
+	ofstream log_file(filepath, ios_base::out | ios_base::app);
+	for (auto ptr : this->logdump) {
+		log_file << ptr << endl;
+	}
+}

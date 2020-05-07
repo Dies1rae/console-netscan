@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 
 class scan {
@@ -28,13 +29,31 @@ public:
 	scan(string I, int P, int T, char TY) :IpAddr(I), port(P), timeout(T), type(TY) {}
 	~scan() { }
 
+	//set scan option from already get variable
 	void set_scan_option(string I, int P, int T, char TY);
+
+	//reload set scan without var. cin it
 	void set_scan_option();
+
+	//cout options
 	void cout_scan_option();
+
+	//scan options to string var
 	string get_scan_option();
+
+	//cout result of scan
 	void cout_scan_result();
+
+	//result of scan to string var
 	string get_scan_result();
+
+	//start socket and try to connect by options
 	void start_scan();
+
+	//upload this->result to .txt or .csv file by \0
 	void result_to_file();
+
+	//check ip or hostname give to us (true if hostname)
+	bool ip_or_hostname_check(string IpAd);
 };
 

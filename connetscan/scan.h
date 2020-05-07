@@ -1,4 +1,5 @@
 #pragma once
+#include "log.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -18,6 +19,8 @@ private:
 	int timeout;
 	//type of scan - 1 port, several, quick, slow, standart
 	char type;
+	//pointer to log class
+	logg* log;
 public:
 	scan() {
 		this->Result = "";
@@ -25,12 +28,13 @@ public:
 		this->port;
 		this->timeout = 0;
 		this->type = 's';
+		this->log = NULL;
 	}
-	scan(string I, int P, int T, char TY) :IpAddr(I), port(P), timeout(T), type(TY) {}
+	scan(string I, int P, int T, char TY, logg * L):IpAddr(I), port(P), timeout(T), type(TY), log(L){}
 	~scan() { }
 
 	//set scan option from already get variable
-	void set_scan_option(string I, int P, int T, char TY);
+	void set_scan_option(string I, int P, int T, char TY, logg* L);
 
 	//reload set scan without var. cin it
 	void set_scan_option();
@@ -55,5 +59,9 @@ public:
 
 	//check ip or hostname give to us (true if hostname)
 	bool ip_or_hostname_check(string IpAd);
+
+
+	//log init
+	void set_init_log(logg* L);
 };
 

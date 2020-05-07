@@ -1,3 +1,4 @@
+#include "log.h"
 #include "scan.h"
 #include <iostream>
 #include <string>
@@ -9,26 +10,38 @@ using namespace std;
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 
-void scan::set_scan_option(string I, int P, int T, char TY) {
+void scan::set_scan_option(string I, int P, int T, char TY, logg* L) {
 	this->IpAddr = I;
 	this->port.push_back(P);
 	this->timeout = T;
 	this->type = TY;
+	this->log = L;
 }
 
 void scan::set_scan_option() {
 	string I;
 	int P;
 	char TY;
-	cout << "Enter IP address" << endl;
-	cin >> I;
-	cout << "Enter port" << endl;
-	cin >> P;
-	cout << "Enter type of scan(s/a/)" << endl;
+	cout << "Enter type of scan(s-simple/*a-auto*/r-ranged)" << endl;
 	cin >> TY;
-	this->IpAddr = I;
-	this->port.push_back(P);
 	this->type = TY;
+	cout << "Enter Hostname or IP address" << endl;
+	cin >> I;
+	this->IpAddr = I;
+	if (TY == 's') {
+		cout << "Enter port" << endl;
+		cin >> P;
+		this->port.push_back(P);
+	}
+	if (TY == 'r') {
+		int ptr = 2;
+		while (ptr) {
+			cout << "Enter port diaposon(80 443|from * to)" << endl;
+			cin >> P;
+			this->port.push_back(P);
+			ptr--;
+		}
+	}
 }
 
 void scan::cout_scan_option() {
@@ -53,6 +66,10 @@ string scan::get_scan_result() {
 	return this->Result;
 }
 
+void scan::set_init_log(logg* L) {
+	this->log = L;
+}
+
 void scan::start_scan() {
 	//init
 	WSAData Data;
@@ -75,13 +92,12 @@ void scan::start_scan() {
 	//hint
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
-	if (this->type == 's') {
-		hint.sin_port = htons(this->port[0]);
-		//chek hostname or IP in this->IpAddr string
-		if (!ip_or_hostname_check(this->IpAddr)) {
+	//chek hostname or IP in this->IpAddr string
+	//-------------------
+	if (!ip_or_hostname_check(this->IpAddr)) {
 			inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 		}
-		else {
+	else {
 			int ptr0 = 0;
 			char* hostname;
 			hostname = (char*)this->IpAddr.c_str();
@@ -93,17 +109,26 @@ void scan::start_scan() {
 				dw = WSAGetLastError();
 				if (dw != 0){
 					if (dw == WSAHOST_NOT_FOUND){
-						cout << "Host is not found" << endl;
+						//cout << "Host is not found" << endl;
+						this->Result += "Host is not found";
+						this->log->add_log_string(this->Result);
+						closesocket(Clsock);
 						WSACleanup();
 						return;
 					}
 					else if (dw == WSANO_DATA){
-						cout << "No data record is found" << endl;
+						//cout << "No data record is found" << endl;
+						this->Result += "No data record is found";
+						this->log->add_log_string(this->Result);
+						closesocket(Clsock);
 						WSACleanup();
 						return;
 					}
 					else{
-						cout << "Function failed with an error : " << dw << endl;
+						//cout << "Function failed with an error : " << dw << endl;
+						this->Result += "Function failed with an error : " + to_string(dw);
+						this->log->add_log_string(this->Result);
+						closesocket(Clsock);
 						WSACleanup();
 						return;
 					}
@@ -118,19 +143,26 @@ void scan::start_scan() {
 				}
 			}
 		}
+	//--------------
+	//ports
+	if (this->type == 's') {
+		hint.sin_port = htons(this->port[0]);
 		//connect serv
+		//-------------
 		int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 		if (connResult == SOCKET_ERROR) {
 			if (WSAGetLastError() == 10061) {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
-				cerr << "Cant connect to " << this->IpAddr << ":" << to_string(this->port[0]) << " " << to_string(WSAGetLastError()) << "|" << "You could not make a connection because the target machine actively refused it" << endl;
+				//cout << "Cant connect to " << this->IpAddr << ":" << to_string(this->port[0]) << " " << to_string(WSAGetLastError()) << "|" << "You could not make a connection because the target machine actively refused it" << endl;
+				this->log->add_log_string(this->Result);
 				closesocket(Clsock);
 				WSACleanup();
 				return;
 			}
 			else {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError());
-				cout << "Cant connect to " << this->IpAddr << ":" << to_string(this->port[0]) << " " << to_string(WSAGetLastError()) << endl;
+				//cout << "Cant connect to " << this->IpAddr << ":" << to_string(this->port[0]) << " " << to_string(WSAGetLastError()) << endl;
+				this->log->add_log_string(this->Result);
 				closesocket(Clsock);
 				WSACleanup();
 				return;
@@ -138,11 +170,40 @@ void scan::start_scan() {
 		}
 		else {
 			this->Result = "Client connected to " + this->IpAddr + ":" + to_string(this->port[0]) + " - Port is open.";
+			this->log->add_log_string(this->Result);
 		}
-		closesocket(Clsock);
-		WSACleanup();
-		return;
+		//-------------
 	}
+	else if (this->type == 'r' && this->port.size() == 2) {
+		for (int ptrPort = this->port[0]; ptrPort <= this->port[1]; ptrPort ++) {
+			hint.sin_port = htons(ptrPort);
+			//connect serv
+			//-------------
+			int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+			if (connResult == SOCKET_ERROR) {
+				if (WSAGetLastError() == 10061) {
+					this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
+					//cout << "Cant connect to " << this->IpAddr << ":" << to_string(ptrPort) << " " << to_string(WSAGetLastError()) << "|" << "You could not make a connection because the target machine actively refused it" << endl;
+					this->log->add_log_string(this->Result);
+				}
+				else {
+					this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
+					//cout << "Cant connect to " << this->IpAddr << ":" << to_string(ptrPort) << " " << to_string(WSAGetLastError()) << endl;
+					this->log->add_log_string(this->Result);
+				}
+			}
+			else {
+				this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open.";
+				//cout <<  "Client connected to " << this->IpAddr + ":" + to_string(ptrPort) << " - Port is open." << endl;
+				this->log->add_log_string(this->Result);
+			}
+			//-------------
+		}
+	}
+	//close sock
+	closesocket(Clsock);
+	WSACleanup();
+	return;
 }
 
 

@@ -1,0 +1,102 @@
+Starting
+Cant connect to portal.doc:1 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:2 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:3 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:4 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:5 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:6 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:7 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:8 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:9 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:10 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:11 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:12 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:13 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:14 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:15 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:16 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:17 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:18 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:19 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:20 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:21 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:22 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:23 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:24 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:25 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:26 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:27 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:28 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:29 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:30 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:31 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:32 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:33 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:34 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:35 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:36 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:37 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:38 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:39 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:40 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:41 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:42 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:43 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:44 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:45 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:46 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:47 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:48 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:49 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:50 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:51 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:52 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:53 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:54 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:55 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:56 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:57 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:58 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:59 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:60 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:61 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:62 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:63 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:64 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:65 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:66 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:67 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:68 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:69 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:70 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:71 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:72 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:73 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:74 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:75 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:76 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:77 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:78 10061|You could not make a connection because the target machine actively refused it
+Cant connect to portal.doc:79 10061|You could not make a connection because the target machine actively refused it
+Client connected to portal.doc:80 - Port is open.
+Cant connect to portal.doc:81 10056
+Cant connect to portal.doc:82 10056
+Cant connect to portal.doc:83 10056
+Cant connect to portal.doc:84 10056
+Cant connect to portal.doc:85 10056
+Cant connect to portal.doc:86 10056
+Cant connect to portal.doc:87 10056
+Cant connect to portal.doc:88 10056
+Cant connect to portal.doc:89 10056
+Cant connect to portal.doc:90 10056
+Cant connect to portal.doc:91 10056
+Cant connect to portal.doc:92 10056
+Cant connect to portal.doc:93 10056
+Cant connect to portal.doc:94 10056
+Cant connect to portal.doc:95 10056
+Cant connect to portal.doc:96 10056
+Cant connect to portal.doc:97 10056
+Cant connect to portal.doc:98 10056
+Cant connect to portal.doc:99 10056
+Cant connect to portal.doc:100 10056
+Finishing

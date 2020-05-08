@@ -24,7 +24,7 @@ public:
 	//get all log(strings) in vector to somewhere 
 	vector <string> get_all_log_string();
 
-	//to file  --- NOW WORK
+	//to file
 	void write_logdump_to_file(string filepath);
 };
 

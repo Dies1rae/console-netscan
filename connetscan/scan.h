@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <thread>
 using namespace std;
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
@@ -52,17 +53,15 @@ public:
 	//result of scan to string var
 	string get_scan_result();
 
+	//start socket and try to connect by options for thread(if need to scan more than 9 ports)
+	void thread_start_scan();
 	//start socket and try to connect by options
 	void start_scan();
-
-	//upload this->result to .txt or .csv file by \0
-	void result_to_file();
 
 	//check ip or hostname give to us (true if hostname)
 	bool ip_or_hostname_check(string IpAd);
 
-
-	//log init
+	//log init(its a link to work with logg class)
 	void set_init_log(logg* L);
 };
 

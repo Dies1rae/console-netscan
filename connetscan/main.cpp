@@ -22,7 +22,7 @@ int main() {
 	test->start_scan();
 	//get res from log
 	dumplog->cout_log_string();
-	dumplog->write_logdump_to_file("C:\\Users\\Vergilius\\source\\repos\\console - netscan\\x64\\Debug\\log_file.txt");
+	dumplog->write_logdump_to_file("log_file_" + test->get_scan_option()+".txt");
 	//get res last from scan
 	cout << endl << endl << "TOTAL RESULT: ";
 	cout << test->get_scan_result() << endl;

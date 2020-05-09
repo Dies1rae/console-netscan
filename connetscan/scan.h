@@ -54,7 +54,8 @@ public:
 	string get_scan_result();
 
 	//start socket and try to connect by options for thread(if need to scan more than 9 ports)
-	void thread_start_scan();
+	void thread_start_scan_second();
+	void thread_start_scan_first();
 	//start socket and try to connect by options
 	void start_scan();
 

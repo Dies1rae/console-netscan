@@ -26,6 +26,7 @@ int main() {
 	//get res last from scan
 	cout << endl << endl << "TOTAL RESULT: ";
 	cout << test->get_scan_result() << endl;
+	system("PAUSE");
 
 	return 0;
 }

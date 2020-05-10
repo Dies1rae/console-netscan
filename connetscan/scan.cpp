@@ -6,10 +6,12 @@
 #include <stdio.h>
 #include <WS2tcpip.h>
 #include <thread>
+#include <mutex>
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-
+mutex mx;
+condition_variable cv;
 
 void scan::set_scan_option(string I, int P, int T, char TY, logg* L) {
 	this->IpAddr = I;
@@ -72,6 +74,8 @@ void scan::set_init_log(logg* L) {
 }
 
 void scan::thread_start_scan_second() {
+	unique_lock<mutex> lock(mx);
+	cv.wait(lock);
 	//init
 	WSAData Data;
 	WORD ver = MAKEWORD(2, 2);
@@ -129,6 +133,7 @@ void scan::thread_start_scan_second() {
 		}
 		//-------------
 	}
+	cv.notify_all();
 	//close sock
 	closesocket(Clsock);
 	WSACleanup();
@@ -139,6 +144,7 @@ void scan::thread_start_scan_first() {
 	WSAData Data;
 	WORD ver = MAKEWORD(2, 2);
 	int wsResult = WSAStartup(ver, &Data);
+	unique_lock<mutex> lock(mx);
 	if (wsResult != 0) {
 		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
 		cerr << "Can't start Winsock, error!" << wsResult << endl;
@@ -183,6 +189,7 @@ void scan::thread_start_scan_first() {
 			}
 		}
 		else {
+			
 			this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open.";
 			cout << this->Result << "-worker = 1" << endl;
 			this->log->add_log_string(this->Result);
@@ -192,6 +199,7 @@ void scan::thread_start_scan_first() {
 		}
 		//-------------
 	}
+	cv.notify_all();
 	//close sock
 	closesocket(Clsock);
 	WSACleanup();
@@ -313,9 +321,9 @@ void scan::start_scan() {
 	}
 	else if (this->type == 'r' && this->port.size() == 2) {
 		if (this->port[1] >= 10) {
-			thread secondScan(&scan::thread_start_scan_second, this);
-			thread_start_scan_first();
-			secondScan.join();
+			thread firstScan(&scan::thread_start_scan_first, this);
+			thread_start_scan_second();
+			firstScan.join();
 			
 		}else{
 			for (int ptrPort = this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
@@ -352,8 +360,6 @@ void scan::start_scan() {
 	WSACleanup();
 	return;
 }
-
-
 
 //check ip or hostname give to us (true if hostname)
 bool scan::ip_or_hostname_check(string IpAd) {

@@ -1,4 +1,0 @@
-Starting
-Cant connect to 192.168.1.1:50 10060
-Cant connect to 192.168.1.1:1 10060
-Finishing

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <time.h>
+#define _CRT_SECURE_NO_WARNINGS
 using namespace std;
 
 class logg{

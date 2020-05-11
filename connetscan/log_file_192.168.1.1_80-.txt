@@ -1,3 +1,6 @@
 Starting
-Client connected to 192.168.1.1:80 - Port is open.
+Ip address: 192.168.1.1Mon May 11 22:21:22 2020
+
+Client connected to 192.168.1.1:80 - Port is open.Mon May 11 22:21:22 2020
+
 Finishing

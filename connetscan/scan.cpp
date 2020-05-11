@@ -10,6 +10,7 @@
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 mutex mx;
 condition_variable cv;
 
@@ -73,6 +74,86 @@ void scan::set_init_log(logg* L) {
 	this->log = L;
 }
 
+void scan::get_IP_by_hostname(string H) {
+	//init
+	WSAData Data;
+	WORD ver = MAKEWORD(2, 2);
+	int wsResult = WSAStartup(ver, &Data);
+	if (wsResult != 0) {
+		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
+		cerr << "Can't start Winsock, error!" << wsResult << endl;
+		cout << this->Result << ": thread : 1" << endl;
+		WSACleanup();
+		return;
+	}
+	//Create socket
+	SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
+	if (Clsock == INVALID_SOCKET) {
+		cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
+		this->Result = "Can't create Client socket, error! " + WSAGetLastError();
+		cout << this->Result << ": thread : 1" << endl;
+		WSACleanup();
+		return;
+	}
+	//hint
+	sockaddr_in hint;
+	hint.sin_family = AF_INET;
+	int ptr0 = 0;
+	char* hostname;
+	hostname = (char*)this->IpAddr.c_str();
+	struct hostent* host_info;
+	struct in_addr addr;
+	host_info = gethostbyname(hostname);
+	DWORD dw;
+	if (host_info == NULL) {
+		dw = WSAGetLastError();
+		if (dw != 0) {
+			if (dw == WSAHOST_NOT_FOUND) {
+				//cout << "Host is not found" << endl;
+				this->Result += "Host is not found";
+				this->log->add_log_string(this->Result);
+				cout << this->Result << ": thread : 1" << endl;
+				closesocket(Clsock);
+				WSACleanup();
+				return;
+			}
+			else if (dw == WSANO_DATA) {
+				//cout << "No data record is found" << endl;
+				this->Result += "No data record is found";
+				this->log->add_log_string(this->Result);
+				cout << this->Result << ": thread : 1" << endl;
+				closesocket(Clsock);
+				WSACleanup();
+				return;
+			}
+			else {
+				//cout << "Function failed with an error : " << dw << endl;
+				this->Result += "Function failed with an error : " + to_string(dw);
+				this->log->add_log_string(this->Result);
+				cout << this->Result << ": thread : 1" << endl;
+				closesocket(Clsock);
+				WSACleanup();
+				return;
+			}
+		}
+	}
+	else {
+		while (host_info->h_addr_list[ptr0] != 0) {
+			addr.s_addr = *(u_long*)host_info->h_addr_list[ptr0++];
+			cout << "IP Address: " << inet_ntoa(addr) << endl;
+			string IpAdd = inet_ntoa(addr);
+			this->IpAddr = IpAdd;
+			inet_pton(AF_INET, IpAdd.c_str(), &hint.sin_addr);
+		}
+	}
+	closesocket(Clsock);
+	WSACleanup();
+}
+
+void scan::set_copy_hstnm(string H) {
+	this->hstnm = H;
+}
+
 void scan::thread_start_scan_second() {
 	unique_lock<mutex> lock(mx);
 	cv.wait(lock);
@@ -115,9 +196,16 @@ void scan::thread_start_scan_second() {
 				WSACleanup();
 				continue;
 			}
+			if (WSAGetLastError() == 10060) {
+				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
+				cout << this->Result << ": thread : 2" << endl;
+				this->log->add_log_string(this->Result);
+				return;
+			}
 			if (WSAGetLastError() == EWOULDBLOCK) {
 				this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
 				cout << this->Result << ": thread : 2" << endl;
+				this->log->add_log_string(this->Result);
 				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
@@ -184,9 +272,16 @@ void scan::thread_start_scan_first() {
 				WSACleanup();
 				continue;
 			}
+			if (WSAGetLastError() == 10060) {
+				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
+				cout << this->Result << ": thread : 1" << endl;
+				this->log->add_log_string(this->Result);
+				return;
+			}
 			if (WSAGetLastError() == EWOULDBLOCK) {
 				this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
 				cout << this->Result << ": thread : 1" << endl;
+				this->log->add_log_string(this->Result);
 				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
@@ -214,88 +309,18 @@ void scan::thread_start_scan_first() {
 	return;
 }
 void scan::start_scan() {
-	//init
-	WSAData Data;
-	WORD ver = MAKEWORD(2, 2);
-	int wsResult = WSAStartup(ver, &Data);
-	if (wsResult != 0) {
-		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
-		cerr << "Can't start Winsock, error!" << wsResult << endl;
-		cout << this->Result << ": thread : 1" << endl;
-		WSACleanup();
-		return;
-	}
-	//Create socket
-	SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
-	if (Clsock == INVALID_SOCKET) {
-		cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
-		this->Result = "Can't create Client socket, error! " + WSAGetLastError();
-		cout << this->Result << ": thread : 1" << endl;
-		WSACleanup();
-		return;
-	}
-	//hint
-	sockaddr_in hint;
-	hint.sin_family = AF_INET;
 	//chek hostname or IP in this->IpAddr string
 	//------------------- NEED TO BE REPLACED AS FUNCTION OF CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	if (!ip_or_hostname_check(this->IpAddr)) {
-			inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
-		}
+	if (ip_or_hostname_check(this->IpAddr)) {
+		set_copy_hstnm(this->IpAddr);
+		get_IP_by_hostname(this->IpAddr);
+		this->log->add_log_string("Hostname: "+this->hstnm);
+		this->log->add_log_string("Ip address: " + this->IpAddr);
+	}
 	else {
-			int ptr0 = 0;
-			char* hostname;
-			hostname = (char*)this->IpAddr.c_str();
-			struct hostent* host_info;
-			struct in_addr addr;
-			host_info = gethostbyname(hostname);
-			DWORD dw;
-			if (host_info == NULL){
-				dw = WSAGetLastError();
-				if (dw != 0){
-					if (dw == WSAHOST_NOT_FOUND){
-						//cout << "Host is not found" << endl;
-						this->Result += "Host is not found";
-						this->log->add_log_string(this->Result);
-						cout << this->Result << ": thread : 1" << endl;
-						closesocket(Clsock);
-						WSACleanup();
-						return;
-					}
-					else if (dw == WSANO_DATA){
-						//cout << "No data record is found" << endl;
-						this->Result += "No data record is found";
-						this->log->add_log_string(this->Result);
-						cout << this->Result << ": thread : 1" << endl;
-						closesocket(Clsock);
-						WSACleanup();
-						return;
-					}
-					else{
-						//cout << "Function failed with an error : " << dw << endl;
-						this->Result += "Function failed with an error : " + to_string(dw);
-						this->log->add_log_string(this->Result);
-						cout << this->Result << ": thread : 1" << endl;
-						closesocket(Clsock);
-						WSACleanup();
-						return;
-					}
-				}
-			}
-			else {
-				while (host_info->h_addr_list[ptr0] != 0) {
-					addr.s_addr = *(u_long*)host_info->h_addr_list[ptr0++];
-					cout << "IP Address: " << inet_ntoa(addr) << endl;
-					string IpAdd = inet_ntoa(addr);
-					this->IpAddr = IpAdd;
-					inet_pton(AF_INET, IpAdd.c_str(), &hint.sin_addr);
-				}
-			}
-		}
+		this->log->add_log_string("Ip address: " + this->IpAddr);
+	}
 	//--------------
-	//ports
-	closesocket(Clsock);
-	WSACleanup();
 	if (this->type == 's') {
 		//init
 		WSAData Data;
@@ -332,9 +357,16 @@ void scan::start_scan() {
 				this->log->add_log_string(this->Result);
 				return;
 			}
+			if (WSAGetLastError() == 10060) {
+				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
+				cout << this->Result << ": only 1 thread : " << endl;
+				this->log->add_log_string(this->Result);
+				return;
+			}
 			if (WSAGetLastError() == EWOULDBLOCK) {
 				this->Result = "Time out for " + this->IpAddr + ":" + to_string(this->port[0]);
 				cout << this->Result << ": only 1 thread : " << endl;
+				this->log->add_log_string(this->Result);
 				return;
 			}
 			else {
@@ -395,9 +427,18 @@ void scan::start_scan() {
 						WSACleanup();
 						continue;
 					}
+					if (WSAGetLastError() == 10060) {
+						this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
+						cout << this->Result << ": only 1 thread : " << endl;
+						this->log->add_log_string(this->Result);
+						shutdown(Clsock, 0);
+						WSACleanup();
+						continue;
+					}
 					else if (WSAGetLastError() == EWOULDBLOCK) {
 						this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
 						cout << this->Result << ": thread : 1" << endl;
+						this->log->add_log_string(this->Result);
 						shutdown(Clsock, 0);
 						WSACleanup();
 						continue;

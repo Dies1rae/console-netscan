@@ -1,0 +1,12 @@
+Starting
+Hostname: www.ya.ruMon May 11 22:21:43 2020
+
+Ip address: 87.250.250.242Mon May 11 22:21:43 2020
+
+Cant connect to 87.250.250.242:441 10060|Time-outMon May 11 22:22:04 2020
+
+Cant connect to 87.250.250.242:442 10060|Time-outMon May 11 22:22:25 2020
+
+Client connected to 87.250.250.242:443 - Port is openMon May 11 22:22:25 2020
+
+Finishing

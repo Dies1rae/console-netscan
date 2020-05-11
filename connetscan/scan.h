@@ -7,6 +7,7 @@
 #include <thread>
 using namespace std;
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 
 class scan {
@@ -15,6 +16,8 @@ private:
 	string Result;
 	//ip addr to socket
 	string IpAddr;
+	//hostname
+	string hstnm;
 	//port, or several ports in vector elem 1 & 2
 	vector <int> port;
 	//futer options stealth scan
@@ -27,6 +30,7 @@ public:
 	scan() {
 		this->Result = "";
 		this->IpAddr = "";
+		this->hstnm = "";
 		this->port;
 		this->timeout = 0;
 		this->type = 's';
@@ -64,5 +68,9 @@ public:
 
 	//log init(its a link to work with logg class)
 	void set_init_log(logg* L);
+	//get ipaddr of resource by hostname. and if its hostname it change it in IP in this->IpAddr
+	void get_IP_by_hostname(string H);
+	//fnc to copy hostname from this->IPaddr to this->hstnm if it is!
+	void set_copy_hstnm(string H);
 };
 

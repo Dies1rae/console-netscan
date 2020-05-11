@@ -7,12 +7,14 @@
 #include <WS2tcpip.h>
 #pragma once
 using namespace std;
-
+#define _CRT_SECURE_NO_WARNINGS
 
 int main() {
 	//init log
 	logg* dumplog = new logg("Starting");
 	//init scan
+	//timestamp
+	dumplog->add_log_string("Timestamp");
 	scan* test = new scan();
 	//set log in scan
 	test->set_init_log(dumplog);

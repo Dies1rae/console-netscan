@@ -15,7 +15,7 @@ private:
 	//string to store data scan
 	string Result;
 	//ip addr to socket
-	string IpAddr;
+	vector <string> IpAddr;
 	//hostname
 	string hstnm;
 	//port, or several ports in vector elem 1 & 2
@@ -29,14 +29,14 @@ private:
 public:
 	scan() {
 		this->Result = "";
-		this->IpAddr = "";
+		this->IpAddr;
 		this->hstnm = "";
 		this->port;
 		this->timeout = 0;
 		this->type = 's';
 		this->log = NULL;
 	}
-	scan(string I, int P, int T, char TY, logg * L):IpAddr(I), port(P), timeout(T), type(TY), log(L){}
+	scan(string I, int P, int T, char TY, logg * L):port(P), timeout(T), type(TY), log(L){}
 	~scan() { }
 
 	//set scan option from already get variable

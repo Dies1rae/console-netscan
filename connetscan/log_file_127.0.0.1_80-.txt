@@ -1,5 +1,0 @@
-Starting
-Hostname: localhost
-Ip address: 127.0.0.1
-Cant connect to 127.0.0.1:80 10061|You could not make a connection because the target machine actively refused it
-Finishing

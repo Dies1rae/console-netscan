@@ -1,8 +1,0 @@
-Starting
-Hostname: www.ya.ru
-Ip address: 87.250.250.242F
-Cant connect to 87.250.250.242:440 10060|Time-outG
-Cant connect to 87.250.250.242:440 10060|Time-outE
-Cant connect to 87.250.250.242:440 10060|Time-outE
-Client connected to 87.250.250.242:443 - Port is openE
-Finishing

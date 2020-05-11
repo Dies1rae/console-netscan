@@ -1,9 +1,0 @@
-Starting
-Cant connect to 192.168.1.1:77 10061|You could not make a connection because the target machine actively refused it
-Cant connect to 192.168.1.1:78 10093
-Cant connect to 192.168.1.1:79 10093
-Cant connect to 192.168.1.1:80 10093
-Cant connect to 192.168.1.1:81 10093
-Cant connect to 192.168.1.1:82 10093
-Cant connect to 192.168.1.1:83 10093
-Finishing

@@ -1,8 +1,0 @@
-Starting
-Cant connect to 87.250.250.242:442 10060
-Client connected to 87.250.250.242:443 - Port is open
-Cant connect to 87.250.250.242:444 10056
-Cant connect to 87.250.250.242:445 10056
-Cant connect to 87.250.250.242:446 10056
-Cant connect to 87.250.250.242:447 10056
-Finishing

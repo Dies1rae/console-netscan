@@ -1,9 +1,0 @@
-Starting
-Cant connect to 64.233.165.94:439 10060
-Cant connect to 64.233.165.94:440 10093
-Cant connect to 64.233.165.94:441 10093
-Cant connect to 64.233.165.94:442 10093
-Cant connect to 64.233.165.94:443 10093
-Cant connect to 64.233.165.94:444 10093
-Cant connect to 64.233.165.94:445 10093
-Finishing

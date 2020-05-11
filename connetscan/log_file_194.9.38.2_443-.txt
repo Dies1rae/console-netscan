@@ -1,3 +1,0 @@
-Starting
-Client connected to 194.9.38.2:443 - Port is open.
-Finishing

@@ -1,3 +1,0 @@
-Starting
-Cant connect to 127.0.0.1:800000 10061|You could not make a connection because the target machine actively refused it
-Finishing

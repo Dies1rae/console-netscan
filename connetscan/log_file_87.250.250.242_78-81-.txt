@@ -1,6 +1,0 @@
-Starting
-Cant connect to 87.250.250.242:78 10060
-Cant connect to 87.250.250.242:79 10060
-Client connected to 87.250.250.242:80 - Port is open
-Cant connect to 87.250.250.242:81 10060
-Finishing

@@ -1,5 +1,0 @@
-Starting
-Hostname: www.google.ru
-Ip address: 64.233.165.947
-Client connected to 64.233.165.94:443 - Port is open.8
-Finishing

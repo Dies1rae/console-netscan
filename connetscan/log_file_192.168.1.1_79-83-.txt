@@ -1,0 +1,7 @@
+Starting
+Cant connect to 192.168.1.1:79 10061|You could not make a connection because the target machine actively refused it
+Client connected to 192.168.1.1:80 - Port is open
+Cant connect to 192.168.1.1:81 10056
+Cant connect to 192.168.1.1:82 10056
+Cant connect to 192.168.1.1:83 10056
+Finishing

@@ -76,58 +76,66 @@ void scan::set_init_log(logg* L) {
 void scan::thread_start_scan_second() {
 	unique_lock<mutex> lock(mx);
 	cv.wait(lock);
-	//init
-	WSAData Data;
-	WORD ver = MAKEWORD(2, 2);
-	int wsResult = WSAStartup(ver, &Data);
-	if (wsResult != 0) {
-		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
-		cerr << "Can't start Winsock, error!" << wsResult << endl;
-		cout << this->Result << "-worker = 2" << endl;
-		WSACleanup();
-		return;
-	}
-	//Create socket
-	SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
-	if (Clsock == INVALID_SOCKET) {
-		cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
-		this->Result = "Can't create Client socket, error! " + WSAGetLastError();
-		cout << this->Result << "-worker = 2" << endl;
-		WSACleanup();
-		return;
-	}
-	//hint
-	sockaddr_in hint;
-	hint.sin_family = AF_INET;
-	//ports
-	for (int ptrPort = this->port[1] / 2; ptrPort <= this->port[1]; ptrPort++) {
+	for (int ptrPort = ((this->port[1] - this->port[0]) / 2)+ this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
+		//init
+		WSAData Data;
+		WORD ver = MAKEWORD(2, 2);
+		int wsResult = WSAStartup(ver, &Data);
+		if (wsResult != 0) {
+			this->Result = "Can't start Winsock, error! " + to_string(wsResult);
+			cerr << "Can't start Winsock, error!" << wsResult << endl;
+			cout << this->Result << ": thread : 2" << endl;
+			WSACleanup();
+			return;
+		}
+		//Create socket
+		SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
+		if (Clsock == INVALID_SOCKET) {
+			cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
+			this->Result = "Can't create Client socket, error! " + WSAGetLastError();
+			cout << this->Result << ": thread : 2" << endl;
+			WSACleanup();
+			return;
+		}
+		//hint
+		sockaddr_in hint;
+		hint.sin_family = AF_INET;
+		//ports
 		hint.sin_port = htons(ptrPort);
 		//connect serv
+		inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 		//-------------
 		int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 		if (connResult == SOCKET_ERROR) {
 			if (WSAGetLastError() == 10061) {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
-				cout << this->Result << "-worker = 2" << endl;
+				cout << this->Result << ": thread : 2" << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
+				shutdown(Clsock, 0);
+				WSACleanup();
+				continue;
+			}
+			if (WSAGetLastError() == EWOULDBLOCK) {
+				this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
+				cout << this->Result << ": thread : 2" << endl;
+				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
 			}
 			else {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
-				cout << this->Result << "-worker = 2" << endl;
+				cout << this->Result << ": thread : 2" << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
+				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
 			}
 		}
 		else {
 			this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open.";
-			cout << this->Result << "-worker = 2" << endl;
+			cout << this->Result << ": thread : 2" << endl;
 			this->log->add_log_string(this->Result);
-			closesocket(Clsock);
+			shutdown(Clsock, 0);
 			WSACleanup();
 			continue;
 		}
@@ -135,74 +143,74 @@ void scan::thread_start_scan_second() {
 	}
 	cv.notify_all();
 	//close sock
-	closesocket(Clsock);
-	WSACleanup();
 	return;
 }
 void scan::thread_start_scan_first() {
-	//init
-	WSAData Data;
-	WORD ver = MAKEWORD(2, 2);
-	int wsResult = WSAStartup(ver, &Data);
-	unique_lock<mutex> lock(mx);
-	if (wsResult != 0) {
-		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
-		cerr << "Can't start Winsock, error!" << wsResult << endl;
-		cout << this->Result << "-worker = 1" << endl;
-		WSACleanup();
-		return;
-	}
-	//Create socket
-	SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
-	if (Clsock == INVALID_SOCKET) {
-		cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
-		this->Result = "Can't create Client socket, error! " + WSAGetLastError();
-		cout << this->Result << "-worker = 1" << endl;
-		WSACleanup();
-		return;
-	}
-	//hint
-	sockaddr_in hint;
-	hint.sin_family = AF_INET;
 	//ports
 	for (int ptrPort = this->port[0]; ptrPort <= this->port[1] / 2 - 1; ptrPort++) {
+		WSAData Data;
+		WORD ver = MAKEWORD(2, 2);
+		int wsResult = WSAStartup(ver, &Data);
+		if (wsResult != 0) {
+			this->Result = "Can't start Winsock, error! " + to_string(wsResult);
+			cerr << "Can't start Winsock, error!" << wsResult << endl;
+			cout << this->Result << ": thread : 1" << endl;
+			WSACleanup();
+			return;
+		}
+		//Create socket
+		SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
+		if (Clsock == INVALID_SOCKET) {
+			cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
+			this->Result = "Can't create Client socket, error! " + WSAGetLastError();
+			cout << this->Result << ": thread : 1" << endl;
+			WSACleanup();
+			return;
+		}
+		//hint
+		sockaddr_in hint;
+		hint.sin_family = AF_INET;
 		hint.sin_port = htons(ptrPort);
+		inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 		//connect serv
 		//-------------
 		int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 		if (connResult == SOCKET_ERROR) {
 			if (WSAGetLastError() == 10061) {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
-				cout << this->Result << "-worker = 1" << endl;
+				cout << this->Result << ": thread : 1" << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
+				shutdown(Clsock, 0);
+				WSACleanup();
+				continue;
+			}
+			if (WSAGetLastError() == EWOULDBLOCK) {
+				this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
+				cout << this->Result << ": thread : 1" << endl;
+				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
 			}
 			else {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
-				cout << this->Result << "-worker = 1" << endl;
+				cout << this->Result << ": thread : 1" << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
+				shutdown(Clsock, 0);
 				WSACleanup();
 				continue;
 			}
 		}
 		else {
-			
 			this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open.";
-			cout << this->Result << "-worker = 1" << endl;
+			cout << this->Result << ": thread : 1" << endl;
 			this->log->add_log_string(this->Result);
-			closesocket(Clsock);
+			shutdown(Clsock, 0);
 			WSACleanup();
 			continue;
 		}
 		//-------------
 	}
 	cv.notify_all();
-	//close sock
-	closesocket(Clsock);
-	WSACleanup();
 	return;
 }
 void scan::start_scan() {
@@ -213,7 +221,7 @@ void scan::start_scan() {
 	if (wsResult != 0) {
 		this->Result = "Can't start Winsock, error! " + to_string(wsResult);
 		cerr << "Can't start Winsock, error!" << wsResult << endl;
-		cout << this->Result << "-worker = 1" << endl;
+		cout << this->Result << ": thread : 1" << endl;
 		WSACleanup();
 		return;
 	}
@@ -222,7 +230,7 @@ void scan::start_scan() {
 	if (Clsock == INVALID_SOCKET) {
 		cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
 		this->Result = "Can't create Client socket, error! " + WSAGetLastError();
-		cout << this->Result << "-worker = 1" << endl;
+		cout << this->Result << ": thread : 1" << endl;
 		WSACleanup();
 		return;
 	}
@@ -230,7 +238,7 @@ void scan::start_scan() {
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	//chek hostname or IP in this->IpAddr string
-	//-------------------
+	//------------------- NEED TO BE REPLACED AS FUNCTION OF CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	if (!ip_or_hostname_check(this->IpAddr)) {
 			inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 		}
@@ -249,7 +257,7 @@ void scan::start_scan() {
 						//cout << "Host is not found" << endl;
 						this->Result += "Host is not found";
 						this->log->add_log_string(this->Result);
-						cout << this->Result << "-worker = 1" << endl;
+						cout << this->Result << ": thread : 1" << endl;
 						closesocket(Clsock);
 						WSACleanup();
 						return;
@@ -258,7 +266,7 @@ void scan::start_scan() {
 						//cout << "No data record is found" << endl;
 						this->Result += "No data record is found";
 						this->log->add_log_string(this->Result);
-						cout << this->Result << "-worker = 1" << endl;
+						cout << this->Result << ": thread : 1" << endl;
 						closesocket(Clsock);
 						WSACleanup();
 						return;
@@ -267,7 +275,7 @@ void scan::start_scan() {
 						//cout << "Function failed with an error : " << dw << endl;
 						this->Result += "Function failed with an error : " + to_string(dw);
 						this->log->add_log_string(this->Result);
-						cout << this->Result << "-worker = 1" << endl;
+						cout << this->Result << ": thread : 1" << endl;
 						closesocket(Clsock);
 						WSACleanup();
 						return;
@@ -286,7 +294,33 @@ void scan::start_scan() {
 		}
 	//--------------
 	//ports
+	closesocket(Clsock);
+	WSACleanup();
 	if (this->type == 's') {
+		//init
+		WSAData Data;
+		WORD ver = MAKEWORD(2, 2);
+		int wsResult = WSAStartup(ver, &Data);
+		if (wsResult != 0) {
+			this->Result = "Can't start Winsock, error! " + to_string(wsResult);
+			cerr << "Can't start Winsock, error!" << wsResult << endl;
+			cout << this->Result << ": thread : 1" << endl;
+			WSACleanup();
+			return;
+		}
+		//Create socket
+		SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
+		if (Clsock == INVALID_SOCKET) {
+			cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
+			this->Result = "Can't create Client socket, error! " + WSAGetLastError();
+			cout << this->Result << ": thread : 1" << endl;
+			WSACleanup();
+			return;
+		}
+		//hint
+		sockaddr_in hint;
+		hint.sin_family = AF_INET;
+		inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 		hint.sin_port = htons(this->port[0]);
 		//connect serv
 		//-------------
@@ -294,70 +328,103 @@ void scan::start_scan() {
 		if (connResult == SOCKET_ERROR) {
 			if (WSAGetLastError() == 10061) {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
-				cout << this->Result << "-worker = 1" << endl;
+				cout << this->Result << ": only 1 thread : " << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
-				WSACleanup();
+				return;
+			}
+			if (WSAGetLastError() == EWOULDBLOCK) {
+				this->Result = "Time out for " + this->IpAddr + ":" + to_string(this->port[0]);
+				cout << this->Result << ": only 1 thread : " << endl;
 				return;
 			}
 			else {
 				this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError());
-				cout << this->Result << "-worker = 1" << endl;
+				cout << this->Result << ": only 1 thread : " << endl;
 				this->log->add_log_string(this->Result);
-				closesocket(Clsock);
-				WSACleanup();
 				return;
 			}
 		}
 		else {
 			this->Result = "Client connected to " + this->IpAddr + ":" + to_string(this->port[0]) + " - Port is open.";
-			cout << this->Result << "-worker = 1" << endl;
+			cout << this->Result << ": only 1 thread : " << endl;
 			this->log->add_log_string(this->Result);
-			closesocket(Clsock);
-			WSACleanup();
 			return;
 		}
 		//-------------
 	}
 	else if (this->type == 'r' && this->port.size() == 2) {
-		if (this->port[1] >= 10) {
+		if (this->port[1] - this->port[0] >= 50) {
 			thread firstScan(&scan::thread_start_scan_first, this);
 			thread_start_scan_second();
 			firstScan.join();
-			
 		}else{
 			for (int ptrPort = this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
+				WSAData Data;
+				WORD ver = MAKEWORD(2, 2);
+				int wsResult = WSAStartup(ver, &Data);
+				if (wsResult != 0) {
+					this->Result = "Can't start Winsock, error! " + to_string(wsResult);
+					cerr << "Can't start Winsock, error!" << wsResult << endl;
+					cout << this->Result << ": thread : 1" << endl;
+					WSACleanup();
+					return;
+				}
+				//Create socket
+				SOCKET Clsock = socket(AF_INET, SOCK_STREAM, 0);
+				if (Clsock == INVALID_SOCKET) {
+					cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
+					this->Result = "Can't create Client socket, error! " + WSAGetLastError();
+					cout << this->Result << ": thread : 1" << endl;
+					WSACleanup();
+					return;
+				}
+				//hint
+				sockaddr_in hint;
+				hint.sin_family = AF_INET;
 				hint.sin_port = htons(ptrPort);
+				inet_pton(AF_INET, this->IpAddr.c_str(), &hint.sin_addr);
 				//connect serv
 				//-------------
 				int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 				if (connResult == SOCKET_ERROR) {
 					if (WSAGetLastError() == 10061) {
 						this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
-						cout << this->Result << "-worker = only 1" << endl;
+						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
+						shutdown(Clsock,0);
+						WSACleanup();
+						continue;
+					}
+					else if (WSAGetLastError() == EWOULDBLOCK) {
+						this->Result = "Time out for " + this->IpAddr + ":" + to_string(ptrPort);
+						cout << this->Result << ": thread : 1" << endl;
+						shutdown(Clsock, 0);
+						WSACleanup();
 						continue;
 					}
 					else {
 						this->Result = "Cant connect to " + this->IpAddr + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
-						cout << this->Result << "-worker = only 1" << endl;
+						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
+						shutdown(Clsock, 0);
+						WSACleanup();
 						continue;
 					}
 				}
 				else {
-					this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open.";
-					cout << this->Result << "-worker = only 1" << endl;
+					this->Result = "Client connected to " + this->IpAddr + ":" + to_string(ptrPort) + " - Port is open";
+					cout << this->Result << ": only 1 thread : " << endl;
 					this->log->add_log_string(this->Result);
+					shutdown(Clsock, 0);
+					WSACleanup();
 					continue;
 				}
 				//-------------
+				closesocket(Clsock);
+				WSACleanup();
 			}
 		}
 	}
-	//close sock
-	closesocket(Clsock);
-	WSACleanup();
 	return;
 }
 

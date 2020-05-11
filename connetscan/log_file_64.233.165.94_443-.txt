@@ -1,0 +1,3 @@
+Starting
+Client connected to 64.233.165.94:443 - Port is open.
+Finishing

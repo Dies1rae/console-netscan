@@ -24,6 +24,7 @@ vector <string> logg::get_all_log_string() {
 }
 
 void logg::write_logdump_to_file(string filepath) {
+	filepath += ".txt";
 	ofstream log_file(filepath);
 	for (auto ptr : this->logdump) {
 		log_file << ptr << endl;

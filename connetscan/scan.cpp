@@ -7,6 +7,7 @@
 #include <WS2tcpip.h>
 #include <thread>
 #include <mutex>
+#include <sstream>
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
@@ -26,19 +27,77 @@ void scan::set_scan_option() {
 	string I;
 	int P;
 	char TY;
-	cout << "Enter type of scan(s-simple(1 ip-hostname, 1 port)/##a-auto(range of ip, 1 port)##/r-ranged(1 ip-hostname, range of port))" << endl;
+	cout << "Enter type of scan(s-simple(1 ip-hostname, 1 port)/a-auto(range of ip, 1 port)/r-ranged(1 ip-hostname, range of port)/u - UBER(range of IP, range of port))" << endl;
 	cin >> TY;
 	this->type = TY;
-	cout << "Enter Hostname or IP address" << endl;
-	cin >> I;
-	this->IpAddr.push_back(I);
 	if (TY == 's') {
+		cout << "Enter IP or Hostname" << endl;
+		cin >> I;
+		this->IpAddr.push_back(I);
+		cout << "Enter port" << endl;
+		cin >> P;
+		this->port.push_back(P);
+	}
+	if (TY == 'a') {
+		int ptr = 2;
+		while (ptr) {
+			cout << "Enter IP range(192.168.1.1 192.168.1.20(max netmask 24)|from * to)" << endl;
+			cin >> I;
+			this->IpAddr.push_back(I);
+			ptr--;
+		}
+		stringstream from(this->IpAddr[0]);
+		stringstream to(this->IpAddr[1]);
+		int a, b, c, d,e,f,g,h;
+		char ch;
+		from >> a >> ch >> b >> ch >> c >> ch >> d;
+		to >> e >> ch >> f >> ch >> g >> ch >> h;
+		string tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		for (int ptr0 = d + 1; ptr0 < h; ptr0++) {
+			tmpIP += to_string(ptr0);
+			this->IpAddr.push_back(tmpIP);
+			tmpIP.clear();
+			tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		}
 		cout << "Enter port" << endl;
 		cin >> P;
 		this->port.push_back(P);
 	}
 	if (TY == 'r') {
+		cout << "Enter IP or Hostname" << endl;
+		cin >> I;
+		this->IpAddr.push_back(I);
 		int ptr = 2;
+		while (ptr) {
+			cout << "Enter port range(80 443|from * to)" << endl;
+			cin >> P;
+			this->port.push_back(P);
+			ptr--;
+		}
+	}
+	if (TY == 'u') {
+		int ptr = 2;
+		while (ptr) {
+			cout << "Enter IP range(192.168.1.1 192.168.1.20(max netmask 24)|from * to)" << endl;
+			cin >> I;
+			this->IpAddr.push_back(I);
+			ptr--;
+		}
+		stringstream from(this->IpAddr[0]);
+		stringstream to(this->IpAddr[1]);
+		int a, b, c, d, e, f, g, h;
+		char ch;
+		from >> a >> ch >> b >> ch >> c >> ch >> d;
+		to >> e >> ch >> f >> ch >> g >> ch >> h;
+		string tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		d++;
+		for (int ptr = d; d < h; d++) {
+			tmpIP += to_string(d);
+			this->IpAddr.push_back(tmpIP);
+			tmpIP.clear();
+			tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		}
+		ptr = 2;
 		while (ptr) {
 			cout << "Enter port range(80 443|from * to)" << endl;
 			cin >> P;
@@ -58,15 +117,16 @@ void scan::cout_scan_option() {
 
 string scan::get_scan_option() {
 	string res;
-	if (this->IpAddr.size() > 1) {
-		res += this->hstnm + " : " + this->IpAddr[0] + "-" + this->IpAddr[this->IpAddr.size()-1];
-		return res;
+	if (this->hstnm.size() > 3) {
+		res = this->hstnm + "--";
+		for (auto ptrport : this->port) {
+			res += to_string(ptrport) + "-";
+		}
 	}
 	else {
-		for (auto ipa : this->IpAddr) {
-			for (auto ptrport : this->port) {
-				res += ipa + ":" + to_string(ptrport) + "-";
-			}
+		res = this->IpAddr[0] + "--";
+		for (auto ptrport : this->port) {
+			 res += to_string(ptrport) + "-";
 		}
 	}
 	return res;
@@ -205,7 +265,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -219,7 +279,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -227,7 +287,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -236,7 +296,7 @@ void scan::thread_start_scan_second() {
 				this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open.";
 				cout << this->Result << ": thread : 2" << endl;
 				this->log->add_log_string(this->Result);
-				shutdown(Clsock, 0);
+				shutdown(Clsock, 2);
 				WSACleanup();
 				continue;
 			}
@@ -245,7 +305,7 @@ void scan::thread_start_scan_second() {
 	}
 	else {
 		for (auto ipa : this->IpAddr) {
-			for (int ptrPort = ((this->port[1] - this->port[0]) / 2) + this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
+			for (int ptrPort = this->port[0] + (((this->port[1] - this->port[0]) + 1) / 2); ptrPort <= this->port[1]; ptrPort++) {
 				//init
 				WSAData Data;
 				WORD ver = MAKEWORD(2, 2);
@@ -280,7 +340,7 @@ void scan::thread_start_scan_second() {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -288,13 +348,13 @@ void scan::thread_start_scan_second() {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						return;
+						continue;
 					}
 					if (WSAGetLastError() == EWOULDBLOCK) {
 						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -302,7 +362,7 @@ void scan::thread_start_scan_second() {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -311,7 +371,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open.";
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -359,7 +419,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -373,7 +433,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -381,7 +441,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -390,7 +450,7 @@ void scan::thread_start_scan_first() {
 				this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open.";
 				cout << this->Result << ": thread : 1" << endl;
 				this->log->add_log_string(this->Result);
-				shutdown(Clsock, 0);
+				shutdown(Clsock, 2);
 				WSACleanup();
 				continue;
 			}
@@ -399,7 +459,7 @@ void scan::thread_start_scan_first() {
 	}
 	else {
 		for (auto ipa : this->IpAddr) {
-			for (int ptrPort = ((this->port[1] - this->port[0]) / 2) + this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
+			for (int ptrPort = this->port[0]; ptrPort <= this->port[1] - (((this->port[1] - this->port[0]) +1) / 2); ptrPort++) {
 				//init
 				WSAData Data;
 				WORD ver = MAKEWORD(2, 2);
@@ -434,7 +494,7 @@ void scan::thread_start_scan_first() {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -442,21 +502,21 @@ void scan::thread_start_scan_first() {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						return;
+						continue;
 					}
 					if (WSAGetLastError() == EWOULDBLOCK) {
 						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
 					else {
-						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
+						this->Result = "Cant connect to " +ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -465,7 +525,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open.";
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 0);
+					shutdown(Clsock, 2);
 					WSACleanup();
 					continue;
 				}
@@ -488,7 +548,14 @@ void scan::start_scan() {
 		}
 	}
 	else {
-		this->log->add_log_string("Ip address: " + this->IpAddr[0]);
+		if (this->IpAddr.size() == 1) {
+			this->log->add_log_string("Ip address: " + this->IpAddr[0]);
+		}
+		else {
+			for (auto ipa : this->IpAddr) {
+				this->log->add_log_string("Ip address: " + ipa);
+			}
+		}
 	}
 	//--------------
 	if (this->IpAddr.size() == 1) {
@@ -595,7 +662,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -603,7 +670,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -611,7 +678,7 @@ void scan::start_scan() {
 							this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 							cout << this->Result << ": thread : 1" << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -619,7 +686,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -628,7 +695,7 @@ void scan::start_scan() {
 						this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open";
 						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}
@@ -641,7 +708,7 @@ void scan::start_scan() {
 	}
 	else {
 	for (auto ipa : this->IpAddr) {
-		if (this->type == 's') {
+		if (this->type == 's' || this->type == 'a') {
 			//init
 			WSAData Data;
 			WORD ver = MAKEWORD(2, 2);
@@ -704,11 +771,12 @@ void scan::start_scan() {
 			}
 			//-------------
 		}
-		else if (this->type == 'r' && this->port.size() == 2) {
-			if (this->port[1] - this->port[0] >= 50) {
+		else if ((this->type == 'r' || this->type == 'u') && this->port.size() == 2) {
+			if (this->IpAddr.size() >= 2  && this->port[1] - this->port[0] >= 5) {
 				thread firstScan(&scan::thread_start_scan_first, this);
 				thread_start_scan_second();
 				firstScan.join();
+				return;
 			}
 			else {
 				for (int ptrPort = this->port[0]; ptrPort <= this->port[1]; ptrPort++) {
@@ -718,7 +786,7 @@ void scan::start_scan() {
 					if (wsResult != 0) {
 						this->Result = "Can't start Winsock, error! " + to_string(wsResult);
 						cerr << "Can't start Winsock, error!" << wsResult << endl;
-						cout << this->Result << ": thread : 1" << endl;
+						cout << this->Result << ": only 1 thread : " << endl;
 						WSACleanup();
 						continue;
 					}
@@ -727,7 +795,7 @@ void scan::start_scan() {
 					if (Clsock == INVALID_SOCKET) {
 						cerr << "Can't create Client socket, error! " << WSAGetLastError() << endl;
 						this->Result = "Can't create Client socket, error! " + WSAGetLastError();
-						cout << this->Result << ": thread : 1" << endl;
+						cout << this->Result << ": only 1 thread : " << endl;
 						WSACleanup();
 						continue;
 					}
@@ -744,7 +812,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -752,7 +820,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -760,7 +828,7 @@ void scan::start_scan() {
 							this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 							cout << this->Result << ": thread : 1" << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -768,7 +836,7 @@ void scan::start_scan() {
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 0);
+							shutdown(Clsock, 2);
 							WSACleanup();
 							continue;
 						}
@@ -777,7 +845,7 @@ void scan::start_scan() {
 						this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open";
 						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 0);
+						shutdown(Clsock, 2);
 						WSACleanup();
 						continue;
 					}

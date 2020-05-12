@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <thread>
+#include <sstream>
 using namespace std;
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS

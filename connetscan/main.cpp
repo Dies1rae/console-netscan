@@ -24,8 +24,8 @@ int main() {
 	test->start_scan();
 	//get res from log
 	//dumplog->cout_log_string();
-	
-	dumplog->write_logdump_to_file("log_file_" + test->get_scan_option()+".txt");
+
+	dumplog->write_logdump_to_file(test->get_scan_option());
 	//get res last from scan
 	cout << endl << endl << "TOTAL RESULT: ";
 	cout << test->get_scan_result() << endl;

@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/connetscan/log_file_www.google.com 
+/connetscan/log_file_localhost 

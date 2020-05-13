@@ -32,5 +32,8 @@
     <ClInclude Include="log.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

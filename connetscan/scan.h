@@ -46,6 +46,9 @@ public:
 	//reload set scan without var. cin it
 	void set_scan_option();
 
+	//set scan option from already get variable
+	void set_scan_option(string I, int P, char T);
+	void set_scan_option(string I, int PF, int PT, char T);
 	//cout options
 	void cout_scan_option();
 

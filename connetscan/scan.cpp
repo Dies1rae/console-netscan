@@ -107,6 +107,24 @@ void scan::set_scan_option() {
 	}
 }
 
+void scan::set_scan_option(string I, int P, char T) {
+	if (T == 's') {
+		this->type = T;
+		this->IpAddr.push_back(I);
+		this->port.push_back(P);
+		cout << endl << "SET OPTIONS DONE" << endl;
+	}
+}
+void scan::set_scan_option(string I, int PF, int PT, char T) {
+	if (T == 'r') {
+		this->type = T;
+		this->IpAddr.push_back(I);
+		this->port.push_back(PF);
+		this->port.push_back(PT);
+		cout << endl << "SET OPTIONS DONE" << endl;
+	}
+}
+
 void scan::cout_scan_option() {
 	for (auto ipa : this->IpAddr) {
 		for (auto ptrport : this->port) {

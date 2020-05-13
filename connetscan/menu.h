@@ -7,6 +7,7 @@ using namespace std;
 //func declar
 void help_menu_view();
 void hidecursor();
+void UNhidecursor();
 void man_menu_view();
 //display main menu
 void man_menu_view() {
@@ -56,6 +57,7 @@ void man_menu_view() {
 	cout << endl;
 	cout << endl;
 	SetConsoleTextAttribute(hConsole, 7);
+	UNhidecursor();
 }
 
 void help_menu_view() {
@@ -79,5 +81,11 @@ void hidecursor() {
 	CONSOLE_CURSOR_INFO info;
 	info.dwSize = 100;
 	info.bVisible = FALSE;
+	SetConsoleCursorInfo(consoleHandle, &info);
+}
+void UNhidecursor() {
+	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO info;
+	info.bVisible = TRUE;
 	SetConsoleCursorInfo(consoleHandle, &info);
 }

@@ -23,18 +23,18 @@ int main(int argc, char* argv[]) {
 	if (argc > 2 && argc < 4) {
 		cerr << "Check connetscan.exe//? to propertly use program.";
 	}
-	if (argc == 2 && argv[1][0] == 'm') {
+	if (argc == 2 && (argv[1][0] == '/' && argv[1][1] == 'm')) {
 		man_menu_view();
 	}
-	if (argc == 2 && argv[1][0] == '?') {
+	if (argc == 2 && (argv[1][0] == '/' && argv[1][1] == '?')) {
 		help_menu_view();
 	}
 	if (argc >= 4) {
-		if (argc == 4 && argv[1][0] == 's') {
+		if (argc == 4 && (argv[1][0] == '/' && argv[1][1] == 's')) {
 			string tempIP = argv[2];
 			string tempP = argv[3];
 			int Port = stoi(tempP);
-			char T = argv[1][0];
+			char T = argv[1][1];
 			cout << "Program get: " <<T << "-" << tempIP << ":" << Port;
 			test->set_scan_option(tempIP, Port , T);
 			test->start_scan();
@@ -43,13 +43,13 @@ int main(int argc, char* argv[]) {
 			cout << test->get_scan_result() << endl;
 			system("PAUSE");
 		}
-		if (argc == 5 && argv[1][0] == 'r') {
+		if (argc == 5 && (argv[1][0] == '/' && argv[1][1] == 'r')) {
 			string tempIP = argv[2];
 			string tmpPF = argv[3];
 			string tmpPT = argv[4];
 			int PortFrom = stoi(tmpPF);
 			int PortTo = stoi(tmpPT);
-			char T = argv[1][0];
+			char T = argv[1][1];
 			cout << "Program get: " << T << "-" << tempIP << ":" << PortFrom << "-" << PortTo << endl;;
 			test->set_scan_option(tempIP, PortFrom, PortTo, T);
 			test->start_scan();

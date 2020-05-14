@@ -40,11 +40,11 @@ void man_menu_view() {
 	cout << endl << "***|" << "DESCRIPTION:";
 	SetConsoleTextAttribute(hConsole, 7);
 	cout << "                                                                                                                          |***" << endl;
-	cout << endl << "***|" << "		./dipscan s(simple portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT";
+	cout << endl << "***|" << "		./dipscan /s(simple portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT";
 	cout << "                                          |***" << endl;
-	cout << endl << "***|" << "		./dipscan r(ranged portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT from scan ... PORT to scan";
+	cout << endl << "***|" << "		./dipscan /r(ranged portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT from scan ... PORT to scan";
 	cout << "		  |***" << endl;
-	cout << endl << "***|" << "		./dipscan ?(man/help menu)";
+	cout << endl << "***|" << "		./dipscan /?(man/help menu)";
 	cout << "					                                                          |***" << endl;
 	cout << endl << "***|______________________________________________________________________________________________________________________________________|***" << endl;
 	cout << endl << "****************************************************************************************************************************";
@@ -68,12 +68,12 @@ void help_menu_view() {
 	cout << "m - man menu" << endl;
 	cout << "m - help menu" << endl << endl;
 	cout << "OPTIONS: " << endl;
-	cout << "dipscan.exe s www.google.com 443" << endl;
-	cout << "dipscan.exe s 192.168.1.1 80" << endl << endl;
-	cout << "dipscan.exe r 192.168.1.1 80 160" << endl;
-	cout << "dipscan.exe r www.ya.ru 440 500" << endl << endl;
-	cout << "dipscan.exe h" << endl;
-	cout << "dipscan.exe ?" << endl;
+	cout << "dipscan.exe /s www.google.com 443" << endl;
+	cout << "dipscan.exe /s 192.168.1.1 80" << endl << endl;
+	cout << "dipscan.exe /r 192.168.1.1 80 160" << endl;
+	cout << "dipscan.exe /r www.ya.ru 440 500" << endl << endl;
+	cout << "dipscan.exe /h" << endl;
+	cout << "dipscan.exe /?" << endl;
 }
 
 void hidecursor() {

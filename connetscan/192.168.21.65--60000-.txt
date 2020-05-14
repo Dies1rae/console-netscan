@@ -1,0 +1,8 @@
+Starting
+Timestamp: Thu May 14 16:25:31 2020
+
+Ip address: 192.168.21.65: Thu May 14 16:25:37 2020
+
+Cant connect to 192.168.21.65:60000 10035: Thu May 14 16:25:37 2020
+
+Finishing

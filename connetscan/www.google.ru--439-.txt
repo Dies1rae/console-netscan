@@ -1,0 +1,10 @@
+Starting
+Timestamp: Thu May 14 16:29:30 2020
+
+Hostname: www.google.ru: Thu May 14 16:29:36 2020
+
+Ip address: 64.233.165.94: Thu May 14 16:29:36 2020
+
+Client connected to 64.233.165.94:439 - Port is open.: Thu May 14 16:29:36 2020
+
+Finishing

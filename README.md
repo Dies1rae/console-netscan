@@ -5,9 +5,9 @@
 	cout << "m - man menu" << endl;
 	cout << "m - help menu" << endl << endl;
 	cout << "OPTIONS: " << endl;
-	cout << "dipscan.exe s www.google.com 443" << endl;
-	cout << "dipscan.exe s 192.168.1.1 80" << endl << endl;
-	cout << "dipscan.exe r 192.168.1.1 80 160" << endl;
-	cout << "dipscan.exe r www.ya.ru 440 500" << endl << endl;
-	cout << "dipscan.exe h" << endl;
-	cout << "dipscan.exe ?" << endl;
+	cout << "dipscan.exe /s www.google.com 443" << endl;
+	cout << "dipscan.exe /s 192.168.1.1 80" << endl << endl;
+	cout << "dipscan.exe /r 192.168.1.1 80 160" << endl;
+	cout << "dipscan.exe /r www.ya.ru 440 500" << endl << endl;
+	cout << "dipscan.exe /h" << endl;
+	cout << "dipscan.exe /?" << endl;

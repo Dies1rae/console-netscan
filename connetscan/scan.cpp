@@ -247,7 +247,7 @@ void scan::thread_start_scan_second() {
 	unique_lock<mutex> lock(mx);
 	cv.wait(lock);
 	if (this->IpAddr.size() == 1) {
-		for (int ptrPort = this->port[0]; ptrPort <= this->port[1] / 2 - 1; ptrPort++) {
+		for (int ptrPort = this->port[1] / 2; ptrPort <= this->port[1]; ptrPort++) {
 			WSAData Data;
 			WORD ver = MAKEWORD(2, 2);
 			int wsResult = WSAStartup(ver, &Data);
@@ -363,7 +363,7 @@ void scan::thread_start_scan_second() {
 	}
 	else {
 		for (auto ipa : this->IpAddr) {
-			for (int ptrPort = this->port[0]; ptrPort <= this->port[1] - (((this->port[1] - this->port[0]) + 1) / 2); ptrPort++) {
+			for (int ptrPort = this->port[1] - (((this->port[1] - this->port[0])) / 2); ptrPort <= this->port[1]; ptrPort++) {
 				//init
 				WSAData Data;
 				WORD ver = MAKEWORD(2, 2);
@@ -603,7 +603,7 @@ void scan::thread_start_scan_first() {
 	}
 	else {
 		for (auto ipa : this->IpAddr) {
-			for (int ptrPort = this->port[0]; ptrPort <= this->port[1] - (((this->port[1] - this->port[0]) +1) / 2); ptrPort++) {
+			for (int ptrPort = this->port[0]; ptrPort < this->port[1] - (((this->port[1] - this->port[0]) +1) / 2); ptrPort++) {
 				//init
 				WSAData Data;
 				WORD ver = MAKEWORD(2, 2);

@@ -22,7 +22,6 @@ void scan::set_scan_option(string I, int P, int T, char TY, logg* L) {
 	this->type = TY;
 	this->log = L;
 }
-
 void scan::set_scan_option() {
 	string I;
 	int P;
@@ -106,7 +105,6 @@ void scan::set_scan_option() {
 		}
 	}
 }
-
 void scan::set_scan_option(string I, int P, char T) {
 	if (T == 's') {
 		this->type = T;
@@ -244,6 +242,7 @@ void scan::set_copy_hstnm(string H) {
 	this->hstnm = H;
 }
 
+
 void scan::thread_start_scan_second() {
 	unique_lock<mutex> lock(mx);
 	cv.wait(lock);
@@ -283,7 +282,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -297,7 +296,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -305,7 +304,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -314,7 +313,7 @@ void scan::thread_start_scan_second() {
 				this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open.";
 				cout << this->Result << ": thread : 2" << endl;
 				this->log->add_log_string(this->Result);
-				shutdown(Clsock, 2);
+				closesocket(Clsock);
 				WSACleanup();
 				continue;
 			}
@@ -352,35 +351,66 @@ void scan::thread_start_scan_second() {
 				//connect serv
 				inet_pton(AF_INET, ipa.c_str(), &hint.sin_addr);
 				//-------------
-				int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+				// set mode to unblocking
+				unsigned long mode = 1;
+				int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+				if (connResult == SOCKET_ERROR) {
+					// handle error...
+					closesocket(Clsock);
+					return;
+				}
+				//-------------
+				connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 				if (connResult == SOCKET_ERROR) {
 					if (WSAGetLastError() == 10061) {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}
 					if (WSAGetLastError() == 10060) {
+						fd_set write, except;
+						FD_ZERO(&write);
+						FD_SET(Clsock, &write);
+						FD_ZERO(&except);
+						FD_SET(Clsock, &except);
+						struct timeval tv;
+						tv.tv_sec = 2;
+						tv.tv_usec = 0;
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
+						connResult = select(NULL, NULL, &write, &except, &tv);
 						continue;
 					}
 					if (WSAGetLastError() == EWOULDBLOCK) {
 						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
-						WSACleanup();
+						continue;
+					}
+					if (WSAGetLastError() == WSAEWOULDBLOCK) {
+						fd_set write, except;
+						FD_ZERO(&write);
+						FD_SET(Clsock, &write);
+						FD_ZERO(&except);
+						FD_SET(Clsock, &except);
+						struct timeval tv;
+						tv.tv_sec = 2;
+						tv.tv_usec = 0;
+						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
+						cout << this->Result << ": thread : 2" << endl;
+						this->log->add_log_string(this->Result);
+						connResult = select(NULL, NULL, &write, &except, &tv);
 						continue;
 					}
 					else {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 						cout << this->Result << ": thread : 2" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}
@@ -389,7 +419,7 @@ void scan::thread_start_scan_second() {
 					this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open.";
 					cout << this->Result << ": thread : 2" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -437,7 +467,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -451,7 +481,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -459,7 +489,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -468,7 +498,7 @@ void scan::thread_start_scan_first() {
 				this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open.";
 				cout << this->Result << ": thread : 1" << endl;
 				this->log->add_log_string(this->Result);
-				shutdown(Clsock, 2);
+				closesocket(Clsock);
 				WSACleanup();
 				continue;
 			}
@@ -506,35 +536,66 @@ void scan::thread_start_scan_first() {
 				//connect serv
 				inet_pton(AF_INET, ipa.c_str(), &hint.sin_addr);
 				//-------------
-				int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+				// set mode to unblocking
+				unsigned long mode = 1;
+				int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+				if (connResult == SOCKET_ERROR) {
+					// handle error...
+					closesocket(Clsock);
+					return;
+				}
+				//-------------
+				connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 				if (connResult == SOCKET_ERROR) {
 					if (WSAGetLastError() == 10061) {
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}
 					if (WSAGetLastError() == 10060) {
+						fd_set write, except;
+						FD_ZERO(&write);
+						FD_SET(Clsock, &write);
+						FD_ZERO(&except);
+						FD_SET(Clsock, &except);
+						struct timeval tv;
+						tv.tv_sec = 2;
+						tv.tv_usec = 0;
 						this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
+						connResult = select(NULL, NULL, &write, &except, &tv);
 						continue;
 					}
 					if (WSAGetLastError() == EWOULDBLOCK) {
 						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
-						WSACleanup();
+						continue;
+					}
+					if (WSAGetLastError() == WSAEWOULDBLOCK) {
+						fd_set write, except;
+						FD_ZERO(&write);
+						FD_SET(Clsock, &write);
+						FD_ZERO(&except);
+						FD_SET(Clsock, &except);
+						struct timeval tv;
+						tv.tv_sec = 2;
+						tv.tv_usec = 0;
+						this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
+						cout << this->Result <<": thread : 1" << endl;
+						this->log->add_log_string(this->Result);
+						connResult = select(NULL, NULL, &write, &except, &tv);
 						continue;
 					}
 					else {
 						this->Result = "Cant connect to " +ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 						cout << this->Result << ": thread : 1" << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}
@@ -543,7 +604,7 @@ void scan::thread_start_scan_first() {
 					this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open.";
 					cout << this->Result << ": thread : 1" << endl;
 					this->log->add_log_string(this->Result);
-					shutdown(Clsock, 2);
+					closesocket(Clsock);
 					WSACleanup();
 					continue;
 				}
@@ -605,7 +666,16 @@ void scan::start_scan() {
 			hint.sin_port = htons(this->port[0]);
 			//connect serv
 			//-------------
-			int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+			// set mode to unblocking
+			unsigned long mode = 1;
+			int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+			if (connResult == SOCKET_ERROR){
+				// handle error...
+				closesocket(Clsock);
+				return ;
+			}
+			//-------------
+			connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 			if (connResult == SOCKET_ERROR) {
 				if (WSAGetLastError() == 10061) {
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
@@ -614,15 +684,39 @@ void scan::start_scan() {
 					return;
 				}
 				if (WSAGetLastError() == 10060) {
+					fd_set write, except;
+					FD_ZERO(&write);
+					FD_SET(Clsock, &write);
+					FD_ZERO(&except);
+					FD_SET(Clsock, &except);
+					struct timeval tv;
+					tv.tv_sec = 2;
+					tv.tv_usec = 0;
 					this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 					cout << this->Result << ": only 1 thread : " << endl;
 					this->log->add_log_string(this->Result);
+					connResult = select(NULL, NULL, &write, &except, &tv);
 					return;
 				}
 				if (WSAGetLastError() == EWOULDBLOCK) {
 					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(this->port[0]);
 					cout << this->Result << ": only 1 thread : " << endl;
 					this->log->add_log_string(this->Result);
+					return;
+				}
+				if (WSAGetLastError() == WSAEWOULDBLOCK) {
+					fd_set write, except;
+					FD_ZERO(&write);
+					FD_SET(Clsock, &write);
+					FD_ZERO(&except);
+					FD_SET(Clsock, &except);
+					struct timeval tv;
+					tv.tv_sec = 2;
+					tv.tv_usec = 0;
+					this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(this->port[0]);
+					cout << this->Result << ": only 1 thread : " << endl;
+					this->log->add_log_string(this->Result);
+					connResult = select(NULL, NULL, &write, &except, &tv);
 					return;
 				}
 				else {
@@ -674,37 +768,68 @@ void scan::start_scan() {
 					inet_pton(AF_INET, this->IpAddr[0].c_str(), &hint.sin_addr);
 					//connect serv
 					//-------------
-					int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+					// set mode to unblocking
+					unsigned long mode = 1;
+					int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+					if (connResult == SOCKET_ERROR) {
+						// handle error...
+						closesocket(Clsock);
+						return;
+					}
+					//-------------
+					connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 					if (connResult == SOCKET_ERROR) {
 						if (WSAGetLastError() == 10061) {
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
 							continue;
 						}
 						if (WSAGetLastError() == 10060) {
+							fd_set write, except;
+							FD_ZERO(&write);
+							FD_SET(Clsock, &write);
+							FD_ZERO(&except);
+							FD_SET(Clsock, &except);
+							struct timeval tv;
+							tv.tv_sec = 2;
+							tv.tv_usec = 0;
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
-							WSACleanup();
+							connResult = select(NULL, NULL, &write, &except, &tv);
 							continue;
 						}
 						else if (WSAGetLastError() == EWOULDBLOCK) {
 							this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
 							cout << this->Result << ": thread : 1" << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
+							continue;
+						}
+						if (WSAGetLastError() == WSAEWOULDBLOCK) {
+							fd_set write, except;
+							FD_ZERO(&write);
+							FD_SET(Clsock, &write);
+							FD_ZERO(&except);
+							FD_SET(Clsock, &except);
+							struct timeval tv;
+							tv.tv_sec = 2;
+							tv.tv_usec = 0;
+							this->Result = "Time out for " + this->IpAddr[0] + ":" + to_string(ptrPort);
+							cout << this->Result << ": only 1 thread : " << endl;
+							this->log->add_log_string(this->Result);
+							connResult = select(NULL, NULL, &write, &except, &tv);
 							continue;
 						}
 						else {
 							this->Result = "Cant connect to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
 							continue;
 						}
@@ -713,7 +838,7 @@ void scan::start_scan() {
 						this->Result = "Client connected to " + this->IpAddr[0] + ":" + to_string(ptrPort) + " - Port is open";
 						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}
@@ -745,7 +870,7 @@ void scan::start_scan() {
 				this->Result = "Can't create Client socket, error! " + WSAGetLastError();
 				cout << this->Result << ": thread : 1" << endl;
 				WSACleanup();
-				continue;
+				return;
 			}
 			//hint
 			sockaddr_in hint;
@@ -754,7 +879,16 @@ void scan::start_scan() {
 			hint.sin_port = htons(this->port[0]);
 			//connect serv
 			//-------------
-			int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+			// set mode to unblocking
+			unsigned long mode = 1;
+			int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+			if (connResult == SOCKET_ERROR) {
+				// handle error...
+				closesocket(Clsock);
+				return;
+			}
+			//-------------
+			connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 			if (connResult == SOCKET_ERROR) {
 				if (WSAGetLastError() == 10061) {
 					this->Result = "Cant connect to " + ipa + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
@@ -763,15 +897,41 @@ void scan::start_scan() {
 					continue;
 				}
 				if (WSAGetLastError() == 10060) {
+					fd_set write, except;
+					FD_ZERO(&write);
+					FD_SET(Clsock, &write);
+					FD_ZERO(&except);
+					FD_SET(Clsock, &except);
+					struct timeval tv;
+					tv.tv_sec = 2;
+					tv.tv_usec = 0;
 					this->Result = "Cant connect to " + ipa + ":" + to_string(this->port[0]) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 					cout << this->Result << ": only 1 thread : " << endl;
 					this->log->add_log_string(this->Result);
+					connResult = select(NULL, NULL, &write, &except, &tv);
 					continue;
 				}
-				if (WSAGetLastError() == EWOULDBLOCK) {
+				else if (WSAGetLastError() == EWOULDBLOCK) {
+					this->Result = "Time out for " + ipa + ":" + to_string(this->port[0]);
+					cout << this->Result << ": thread : 1" << endl;
+					this->log->add_log_string(this->Result);
+					closesocket(Clsock);
+					WSACleanup();
+					continue;
+				}
+				if (WSAGetLastError() == WSAEWOULDBLOCK) {
+					fd_set write, except;
+					FD_ZERO(&write);
+					FD_SET(Clsock, &write);
+					FD_ZERO(&except);
+					FD_SET(Clsock, &except);
+					struct timeval tv;
+					tv.tv_sec = 2;
+					tv.tv_usec = 0;
 					this->Result = "Time out for " + ipa + ":" + to_string(this->port[0]);
 					cout << this->Result << ": only 1 thread : " << endl;
 					this->log->add_log_string(this->Result);
+					connResult = select(NULL, NULL, &write, &except, &tv);
 					continue;
 				}
 				else {
@@ -824,37 +984,68 @@ void scan::start_scan() {
 					inet_pton(AF_INET, ipa.c_str(), &hint.sin_addr);
 					//connect serv
 					//-------------
-					int connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
+					// set mode to unblocking
+					unsigned long mode = 1;
+					int connResult = ioctlsocket(Clsock, FIONBIO, &mode);
+					if (connResult == SOCKET_ERROR) {
+						// handle error...
+						closesocket(Clsock);
+						return;
+					}
+					//-------------
+					connResult = connect(Clsock, (sockaddr*)&hint, sizeof(hint));
 					if (connResult == SOCKET_ERROR) {
 						if (WSAGetLastError() == 10061) {
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "You could not make a connection because the target machine actively refused it";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
 							continue;
 						}
 						if (WSAGetLastError() == 10060) {
+							fd_set write, except;
+							FD_ZERO(&write);
+							FD_SET(Clsock, &write);
+							FD_ZERO(&except);
+							FD_SET(Clsock, &except);
+							struct timeval tv;
+							tv.tv_sec = 2;
+							tv.tv_usec = 0;
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError()) + "|" + "Time-out";
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
-							WSACleanup();
+							connResult = select(NULL, NULL, &write, &except, &tv);
 							continue;
 						}
 						else if (WSAGetLastError() == EWOULDBLOCK) {
 							this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
 							cout << this->Result << ": thread : 1" << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
+							continue;
+						}
+						if (WSAGetLastError() == WSAEWOULDBLOCK) {
+							fd_set write, except;
+							FD_ZERO(&write);
+							FD_SET(Clsock, &write);
+							FD_ZERO(&except);
+							FD_SET(Clsock, &except);
+							struct timeval tv;
+							tv.tv_sec = 2;
+							tv.tv_usec = 0;
+							this->Result = "Time out for " + ipa + ":" + to_string(ptrPort);
+							cout << this->Result << ": only 1 thread : " << endl;
+							this->log->add_log_string(this->Result);
+							connResult = select(NULL, NULL, &write, &except, &tv);
 							continue;
 						}
 						else {
 							this->Result = "Cant connect to " + ipa + ":" + to_string(ptrPort) + " " + to_string(WSAGetLastError());
 							cout << this->Result << ": only 1 thread : " << endl;
 							this->log->add_log_string(this->Result);
-							shutdown(Clsock, 2);
+							closesocket(Clsock);
 							WSACleanup();
 							continue;
 						}
@@ -863,7 +1054,7 @@ void scan::start_scan() {
 						this->Result = "Client connected to " + ipa + ":" + to_string(ptrPort) + " - Port is open";
 						cout << this->Result << ": only 1 thread : " << endl;
 						this->log->add_log_string(this->Result);
-						shutdown(Clsock, 2);
+						closesocket(Clsock);
 						WSACleanup();
 						continue;
 					}

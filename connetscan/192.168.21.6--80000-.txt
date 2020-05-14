@@ -1,0 +1,8 @@
+Starting
+Timestamp: Thu May 14 14:03:31 2020
+
+Ip address: 192.168.21.6: Thu May 14 14:03:39 2020
+
+Cant connect to 192.168.21.6:80000 10060|Time-out: Thu May 14 14:04:00 2020
+
+Finishing

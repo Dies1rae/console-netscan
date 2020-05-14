@@ -1,8 +1,0 @@
-Starting
-Timestamp: Thu May 14 16:29:06 2020
-
-Host is not found: Thu May 14 16:29:16 2020
-
-Hostname: www.googl.ru: Thu May 14 16:29:16 2020
-
-Finishing

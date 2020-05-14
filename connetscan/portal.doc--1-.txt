@@ -1,8 +1,0 @@
-Starting
-Timestamp: Thu May 14 17:16:21 2020
-
-Hostname: portal.doc: Thu May 14 17:16:26 2020
-
-Ip address: 192.168.77.234: Thu May 14 17:16:26 2020
-
-Finishing

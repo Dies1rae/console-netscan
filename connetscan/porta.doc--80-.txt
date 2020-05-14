@@ -1,8 +1,0 @@
-Starting
-Timestamp: Thu May 14 16:34:29 2020
-
-Host is not found: Thu May 14 16:34:35 2020
-
-Hostname: porta.doc: Thu May 14 16:34:35 2020
-
-Finishing

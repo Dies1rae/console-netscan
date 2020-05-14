@@ -1,8 +1,0 @@
-Starting
-Timestamp: Thu May 14 16:28:47 2020
-
-Host is not found: Thu May 14 16:28:53 2020
-
-Hostname: www.portal.doc: Thu May 14 16:28:53 2020
-
-Finishing

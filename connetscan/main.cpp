@@ -58,6 +58,37 @@ int main(int argc, char* argv[]) {
 			cout << test->get_scan_result() << endl;
 			system("PAUSE");
 		}
+		if (argc == 5 && (argv[1][0] == '/' && argv[1][1] == 'a')) {
+			string tmpIPFrom = argv[2];
+			string tmpIPTo = argv[3];
+			string tmpP = argv[4];
+			int Port = stoi(tmpP);
+			char T = argv[1][1];
+			cout << "Program get: " << T << "-" << tmpIPFrom << "-" << tmpIPTo << ":" << Port << endl;;
+			test->set_scan_option(tmpIPFrom, tmpIPTo, Port, T);
+			test->start_scan();
+			dumplog->write_logdump_to_file(test->get_scan_option());
+			cout << endl << endl << "TOTAL RESULT: ";
+			cout << test->get_scan_result() << endl;
+			system("PAUSE");
+		}
+		if (argc == 6 && (argv[1][0] == '/' && argv[1][1] == 'u')) {
+			string tmpIPFrom = argv[2];
+			string tmpIPTo = argv[3];
+			string tmpPF = argv[4];
+			string tmpPT = argv[4];
+			int PortF = stoi(tmpPF);
+			int PortT = stoi(tmpPT);
+			char T = argv[1][1];
+			cout << "Program get: " << T << "-" << tmpIPFrom << "-" << tmpIPTo << ":" << PortF << ":" << PortT << endl;
+			test->set_scan_option(tmpIPFrom, tmpIPTo, PortF, PortT, T);
+			test->start_scan();
+			dumplog->write_logdump_to_file(test->get_scan_option());
+			cout << endl << endl << "TOTAL RESULT: ";
+			cout << test->get_scan_result() << endl;
+			system("PAUSE");
+		}
+
 	}
 	if (argc == 1) {
 		test->set_scan_option();

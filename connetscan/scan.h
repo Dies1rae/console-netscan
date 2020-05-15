@@ -47,6 +47,8 @@ public:
 	//set scan option from already get variable
 	void set_scan_option(string I, int P, char T);
 	void set_scan_option(string I, int PF, int PT, char T);
+	void set_scan_option(string Ifrom, string Ito, int P, char T);
+	void set_scan_option(string Ifrom, string Ito, int PF, int PT, char T);
 	//cout options
 	void cout_scan_option();
 	//scan options to string var

@@ -105,12 +105,66 @@ void scan::set_scan_option() {
 		}
 	}
 }
+void scan::set_scan_option(string Ifrom, string Ito, int PF, int PT, char T) {
+	if (T == 'u') {
+		this->type = T;
+		int ptr = 2;
+		this->IpAddr.push_back(Ifrom);
+		this->IpAddr.push_back(Ito);
+		stringstream from(this->IpAddr[0]);
+		stringstream to(this->IpAddr[1]);
+		int a, b, c, d, e, f, g, h;
+		char ch;
+		from >> a >> ch >> b >> ch >> c >> ch >> d;
+		to >> e >> ch >> f >> ch >> g >> ch >> h;
+		string tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		for (int ptr0 = d + 1; ptr0 < h; ptr0++) {
+			tmpIP += to_string(ptr0);
+			this->IpAddr.push_back(tmpIP);
+			tmpIP.clear();
+			tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		}
+		this->port.push_back(PF);
+		this->port.push_back(PT);
+	}
+	else {
+		cerr << "Error type of scan and given data. Please read dipscan.exe /?";
+	}
+}
+void scan::set_scan_option(string Ifrom, string Ito, int P, char T) {
+	if (T == 'a') {
+		this->type = T;
+		int ptr = 2;
+		this->IpAddr.push_back(Ifrom);
+		this->IpAddr.push_back(Ito);
+		stringstream from(this->IpAddr[0]);
+		stringstream to(this->IpAddr[1]);
+		int a, b, c, d, e, f, g, h;
+		char ch;
+		from >> a >> ch >> b >> ch >> c >> ch >> d;
+		to >> e >> ch >> f >> ch >> g >> ch >> h;
+		string tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		for (int ptr0 = d + 1; ptr0 < h; ptr0++) {
+			tmpIP += to_string(ptr0);
+			this->IpAddr.push_back(tmpIP);
+			tmpIP.clear();
+			tmpIP = to_string(a) + ch + to_string(b) + ch + to_string(c) + ch;
+		}
+		this->port.push_back(P);
+	}
+	else {
+		cerr << "Error type of scan and given data. Please read dipscan.exe /?";
+	}
+}
 void scan::set_scan_option(string I, int P, char T) {
 	if (T == 's') {
 		this->type = T;
 		this->IpAddr.push_back(I);
 		this->port.push_back(P);
 		cout << endl << "SET OPTIONS DONE" << endl;
+	}
+	else {
+		cerr << "Error type of scan and given data. Please read dipscan.exe /?";
 	}
 }
 void scan::set_scan_option(string I, int PF, int PT, char T) {
@@ -120,6 +174,9 @@ void scan::set_scan_option(string I, int PF, int PT, char T) {
 		this->port.push_back(PF);
 		this->port.push_back(PT);
 		cout << endl << "SET OPTIONS DONE" << endl;
+	}
+	else {
+		cerr << "Error type of scan and given data. Please read dipscan.exe /?";
 	}
 }
 

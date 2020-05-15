@@ -34,7 +34,7 @@ void man_menu_view() {
 	cout << endl << "***|" << "		./dipscan /s(simple portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT";
 	cout << endl << "***|" << "		./dipscan /r(ranged portscan) ... IPADDRESS(1) or HOSTNAME(several IP's) ... PORT from scan ... PORT to scan";
 	cout << endl << "***|" << "		./dipscan /a(ranged IP scan) ... FROM IPADDRESS(1) TO IPADDRESS(2) ... PORT";
-	cout << endl << "***|" << "		./dipscan /u(ranged IP scan + ranged portscan) ... FROM IPADDRESS(1) TO IPADDRESS(2) ... PORT from scan ... PORT to scan";
+	cout << endl << "***|" << "		./dipscan /u(ranged IP  + ranged port) ... FROM IPADDRESS(1) TO IPADDRESS(2) ... PORT from ... PORT to";
 	cout << endl << "***|" << "		./dipscan /?(help menu)";
 	cout << endl << "***|" << "		./dipscan /man(man menu)";
 	SetConsoleTextAttribute(hConsole, BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_GREEN | 9);
@@ -54,8 +54,8 @@ void help_menu_view() {
 	cout << "	OPTIONS: " << endl;
 	cout << "		s - Simple scan. One target IP or HOSTNAME(one or more ip) and ONE target PORT" << endl;
 	cout << "		r - Ranged port scan. One target IP or HOSTNAME(one or more ip), target port FROM and target port TO(range of ports from--->to)" << endl;
-	cout << "		a - Ranged IP scan. IP address from and IP address to, target port for all these IP" << endl;
-	cout << "		u - Ranged IP scan and ranged port scan. Target IP address from and target IP address to, target port FROM and target port TO(range of ports from--->to)" << endl;
+	cout << "		a - Ranged IP scan. IP from and IP to, target port for all these IP" << endl;
+	cout << "		u - Ranged IP scan & ranged port scan. IP from and IP to, target port FROM and target port TO(range of ports from--->to)" << endl;
 	cout << "		m - man menu" << endl;
 	cout << "		m - help menu" << endl << endl;
 	cout << "	EXAMPLES: " << endl;

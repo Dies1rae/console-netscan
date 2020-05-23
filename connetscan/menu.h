@@ -57,7 +57,7 @@ void help_menu_view() {
 	cout << "		a - Ranged IP scan. IP from and IP to, target port for all these IP" << endl;
 	cout << "		u - Ranged IP scan & ranged port scan. IP from and IP to, target port FROM and target port TO(range of ports from--->to)" << endl;
 	cout << "		m - man menu" << endl;
-	cout << "		m - help menu" << endl << endl;
+	cout << "		? - help menu" << endl << endl;
 	cout << "	EXAMPLES: " << endl;
 	cout << "		dipscan.exe /s www.google.com 443" << endl;
 	cout << "		dipscan.exe /s 192.168.1.1 80" << endl << endl;
